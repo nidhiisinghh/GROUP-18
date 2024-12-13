@@ -1,18 +1,24 @@
 var ms = 0, s = 0, m = 0, h = 0;
 var timer;
+var display = document.querySelector(".timer-Display");
+var laps = document.querySelector(".laps");
 
+var clickSound = new Audio("./click.mp3");
+var tickingSound = new Audio("./stopwatch.mp3");
+tickingSound.loop = true; 
 
-var display = document.querySelector(".timer-display");
-var laps = document.querySelector(".laps ul");
-
-
-
+function playClickSound() {
+    clickSound.play();
+}
 
 function start() {
+    playClickSound();
     if (!timer) {
+        tickingSound.play(); 
         timer = setInterval(run, 10);
     }
 }
+
 function run() {
     display.innerHTML = getTimer();
     ms++;
@@ -34,38 +40,49 @@ function run() {
 }
 
 function getTimer() {
-    return (
-        (h < 10 ? "0" + h : h) + " : " +
-        (m < 10 ? "0" + m : m) + " : " +
-        (s < 10 ? "0" + s : s) + " : " +
-        (ms < 10 ? "0" + ms : ms)
-    );
+    return (h < 10 ? "0" + h : h) + " : " + (m < 10 ? "0" + m : m) + " : " + (s < 10 ? "0" + s : s) + " : " + (ms < 10 ? "0" + ms : ms);
 }
+
 function pause() {
+    playClickSound();
+    stopTimer();
+}
+
+function stopTimer() {
     clearInterval(timer);
-    timer = null;
+    timer = false;
+    tickingSound.pause(); 
+    tickingSound.currentTime = 0; 
 }
 
 function reset() {
-    pause();
-    ms = s = m = h = 0;
+    playClickSound();
+    stopTimer();
+    ms = 0;
+    s = 0;
+    m = 0;
+    h = 0;
     display.innerHTML = getTimer();
 }
 
 function restart() {
-    reset();
-    start();
+    playClickSound();
+    if (timer) {
+        reset();
+        start();
+    }
 }
 
 function lap() {
+    playClickSound();
     if (timer) {
-        var li = document.createElement("li");
-        li.textContent = getTimer();
-        laps.appendChild(li);
+        var Li = document.createElement("li");
+        Li.innerHTML = getTimer();
+        laps.appendChild(Li);
     }
 }
 
 function resetLap() {
+    playClickSound();
     laps.innerHTML = "";
 }
-
