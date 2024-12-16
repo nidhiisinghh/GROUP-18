@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<body>
+<div class="settings">
+            <label for="theme-select">Theme:</label>
+            <select id="theme-select">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="custom">Custom</option>
+            </select>
+            <input type="color" id="color-picker" class="color-picker" title="Choose background color">
+        </div>
+ <script>
+themeSelect.addEventListener("change", (e) => {
+            document.body.className = e.target.value + "-theme";
+            if (e.target.value === "custom") {
+                colorPicker.style.display = "inline-block";
+            } else {
+                colorPicker.style.display = "none";
+                document.body.style.backgroundColor = e.target.value === "light" ? "#f4f4f9" : "#333";
+            }
+        });
+
+        colorPicker.addEventListener("input", (e) => {
+            document.body.style.backgroundColor = e.target.value;
+        });
+    </script>
+</body>
+</html>
