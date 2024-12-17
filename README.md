@@ -10,9 +10,7 @@ This is a simple yet functional stopwatch application with lap functionality. It
 - **Reset Timer**: Reset the stopwatch back to 00:00:00.
 - **Lap Times**: Record lap times while the stopwatch is running.
 - **User-friendly Interface**: Easy to navigate and use.
-- **Sound Effects**:
-	•	Button click sound (click.mp3) for interactive feedback.
-	•	Ticking sound (stopwatch.mp3) during timer operation.
+- **Sound Effects**: Button click sound (click.mp3) for interactive feedback & ticking sound (stopwatch.mp3) during timer operation.
 
 ## Installation
 
