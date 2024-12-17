@@ -45,6 +45,11 @@ Here's how to use the stopwatch:
 
 Contributions are welcome! If you have suggestions or improvements, please create an issue or submit a pull request.
 
+## Live Demo
+
+You can see the project in action here:
+Live Demo Link: https://nidhiisinghh.github.io/GROUP-18/
+
 
 ## Acknowledgements
 
