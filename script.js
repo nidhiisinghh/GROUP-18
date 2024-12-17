@@ -3,8 +3,8 @@ var timer;
 var display = document.querySelector(".timer-Display");
 var laps = document.querySelector(".laps");
 
-var clickSound = new Audio("./click.mp3");
-var tickingSound = new Audio("./stopwatch.mp3");
+var clickSound = new Audio("click.mp3");
+var tickingSound = new Audio("stopwatch.mp3");
 tickingSound.loop = true; 
 
 function playClickSound() {
