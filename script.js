@@ -18,6 +18,7 @@ function start() {
     if (!timer) {
         tickingSound.play();
         timer = setInterval(run, 10);
+        saveTimerState(); 
     }
 }
 
@@ -36,6 +37,7 @@ function run() {
         h++;
     }
     display.innerHTML = getTimer();
+    saveTimerState(); 
 }
 
 function getTimer() {
@@ -63,23 +65,27 @@ function stopTimer() {
     timer = false;
     tickingSound.pause();
     tickingSound.currentTime = 0;
+    saveTimerState(); 
 }
-function restart(){
-    if(timer){
+
+function restart() {
+    if (timer) {
         reset();
         start();
     }
 }
+
 function lap() {
     let L = document.createElement("li");
     L.innerHTML = getTimer();
     let lapsList = document.querySelector(".laps"); 
     lapsList.appendChild(L);
 }
+
 function resetLap() {
     playClickSound();
     totalSavedTimes = [];
-   reset();
+    reset();
     laps.innerHTML = "";
 }
 
@@ -99,6 +105,7 @@ function reset() {
     h = 0;
     display.innerHTML = getTimer();
     saveLastResetTime();
+    saveTimerState();
 }
 
 function saveLastResetTime() {
@@ -107,14 +114,42 @@ function saveLastResetTime() {
     }
 }
 
+function saveTimerState() {
+    const timerState = {
+        ms,
+        s,
+        m,
+        h,
+        running: !!timer 
+    };
+    localStorage.setItem("timerState", JSON.stringify(timerState));
+}
+
 window.onload = function () {
     let saved = localStorage.getItem("savedTimes");
     if (saved) {
         totalSavedTimes = JSON.parse(saved);
     }
+
     let resetSaved = localStorage.getItem("lastResetTime");
     if (resetSaved) {
         lastResetTime = resetSaved;
     }
-    display.innerHTML = getTimer();
+
+    let savedTimerState = localStorage.getItem("timerState");
+    if (savedTimerState) {
+        let { ms: savedMs, s: savedS, m: savedM, h: savedH, running } = JSON.parse(savedTimerState);
+        ms = savedMs || 0;
+        s = savedS || 0;
+        m = savedM || 0;
+        h = savedH || 0;
+
+        display.innerHTML = getTimer();
+
+        if (running) {
+            start();
+        }
+    } else {
+        display.innerHTML = getTimer();
+    }
 };
