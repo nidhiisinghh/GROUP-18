@@ -3,26 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stopwatch</title>
+    <title>Document</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-<div class="container">
-    <br><h1 style="color: honeydew; text-align: center; font-size: xxx-large;">STOPWATCH ⏱️</h1><br>
-    <div class="timer-Display">
-        00 : 00 : 00 : 00
+    <div class="container">
+        <br><h1 style="color: honeydew; text-align: center; font-size: xxx-large;">STOPWATCH ⏱</h1><br>
+        <div class="timer-Display">
+            00 : 00 : 00 : 00
+        </div>
+        <ul class="laps"></ul>
+        <div style="text-align: center; margin-top: 10px;">
+            <input type="radio" id="timerMode" name="mode" value="timer" checked onclick="switchMode('timer')">
+            <label for="timerMode" style="color: white;">Timer Mode</label>
+            <input type="radio" id="lapsMode" name="mode" value="laps" onclick="switchMode('laps')">
+            <label for="lapsMode" style="color: white;">Laps Mode</label>
+        </div>
+        <div class="buttons" id="timerButtons">
+            <button id="startTimer" onclick="start()">Start</button>
+            <button id="pauseTimer" onclick="pause()">Pause</button>
+            <button id="restartTimer" onclick="restart()">Restart 🔁</button>
+            <button id="resetTime" onclick="reset()">Reset ⏹</button>
+        </div>
+        <div class="buttons" id="lapsButtons" style="display: none;">
+            <button id="startLapTimer" onclick="start()">Start</button>
+            <button id="resetLap" onclick="resetLap()">Reset Laps</button>
+            <button id="lap" onclick="lap()">Lap</button>
+       
+        </div>
     </div>
-    <ul class="laps"></ul>
-      <div class="buttons">
-        <button id="startTimer" onclick="start()">Start ▶️</button>
-        <button id="pauseTimer" onclick="pause()">Pause ⏸️</button>
-        <button id="resetTime" onclick="reset()">Reset ⏹️</button>
-        <button id="restartTimer" onclick="restart()">Restart 🔁</button>
-        <button id="lap" onclick="lap()">Lap</button>
-        <button id="resetLap" onclick="resetLap()">Reset Laps</button>
-    </div>
-</div>
-<script src="script.js"></script>
+    <script src="script.js"></script>    
 </body>
 </html>
