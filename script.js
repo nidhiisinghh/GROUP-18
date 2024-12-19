@@ -1,110 +1,50 @@
-var ms = 0, s = 0, m = 0, h = 0;
-var timer;
-var display = document.querySelector(".timer-Display");
-var lapsTable = document.querySelector(".laps");
 
-var totalSavedTimes = []; 
-var clickSound = new Audio("click.mp3");
-var tickingSound = new Audio("stopwatch.mp3");
-tickingSound.loop = true;
+    let startTime, interval;
+    const timeDisplay = document.getElementById("time");
+    const clockHand = document.querySelector(".clockhand");
+    let elapsedTime = 0;
 
-function playClickSound() {
-    clickSound.play();
-}
-
-
-function start() {
-    playClickSound();
-    if (!timer) {
-        document.querySelector("#pauseTimer").innerHTML="Pause ⏸️";
-        tickingSound.play();
-        timer = setInterval(run, 10);
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
     }
-}
 
-function run() {
-    ms++;
-    if (ms == 100) {
-        ms = 0;
-        s++;
+
+    function updateClockHand(ms) {
+        const totalSeconds = ms / 1000;
+        const degrees = (totalSeconds % 60) * 6; 
+        clockHand.style.transform = `rotate(${degrees}deg)`;
     }
-    if (s == 60) {
-        s = 0;
-        m++;
+
+    function startStopwatch() {
+        startTime = Date.now() - elapsedTime;
+        interval = setInterval(() => {
+            elapsedTime = Date.now() - startTime;
+            timeDisplay.textContent = formatTime(elapsedTime);
+            updateClockHand(elapsedTime);
+        }, 100);
     }
-    if (m == 60) {
-        m = 0;
-        h++;
+
+
+    function stopStopwatch() {
+        clearInterval(interval);
     }
-    display.innerHTML = getTimer();
-}
 
-function getTimer() {
-    return (
-        (h < 10 ? "0" + h : h) +
-        ":" +
-        (m < 10 ? "0" + m : m) +
-        ":" +
-        (s < 10 ? "0" + s : s) +
-        ":" +
-        (ms < 10 ? "0" + ms : ms)
-    );
-}
-
-function pause() {
-    playClickSound();
-    if (timer) {
-        document.querySelector("#pauseTimer").innerHTML="Pause ⏯️";
-        stopTimer();
-        saveTime(); 
+    function resetStopwatch() {
+        clearInterval(interval);
+        elapsedTime = 0;
+        timeDisplay.textContent = "00:00:00";
+        clockHand.style.transform = "rotate(0deg)";
     }
-}
-function restart(){
-    if(timer){
-        reset();
-        start();
-    }
-}
-function stopTimer() {
-    clearInterval(timer);
-    timer = false;
-    tickingSound.pause();
-    tickingSound.currentTime = 0;
-}
-function lap() {
-    let L = document.createElement("li");
-    L.innerHTML = getTimer();
-    let lapsList = document.querySelector(".laps"); 
-    lapsList.appendChild(L);
-}
 
-function saveTime() {
-    let currentTime = getTimer(); 
-    totalSavedTimes.push(currentTime); 
-
-    localStorage.setItem("savedTimes",totalSavedTimes);
-
-}
-
-function reset() {
-    document.querySelector("#pauseTimer").innerHTML="Pause";
-    playClickSound();
-    stopTimer();
-    resetLap();
-    saveTime();
-    ms = 0;
-    s = 0;
-    m = 0;
-    h = 0;
-    display.innerHTML = getTimer();
-}
- 
-
-
-
-function resetLap() {
-    playClickSound();
-    totalSavedTimes = [];
-   reset();
-    lapsTable.innerHTML = "";
-}
+   
+    document.body.insertAdjacentHTML('beforeend', `
+        <div class="controls" style="position: absolute; top: 80%; text-align: center; width: 100%;">
+            <button onclick="startStopwatch()" style="font-size: 1.5rem; padding: 0.5rem 1rem; margin: 0.5rem;">Start</button>
+            <button onclick="stopStopwatch()" style="font-size: 1.5rem; padding: 0.5rem 1rem; margin: 0.5rem;">Stop</button>
+            <button onclick="resetStopwatch()" style="font-size: 1.5rem; padding: 0.5rem 1rem; margin: 0.5rem;">Reset</button>
+        </div>
+    `);
