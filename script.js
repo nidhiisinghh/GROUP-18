@@ -1,12 +1,12 @@
-var ms = 0, s = 0, m = 0, h = 0;
-var timer;
-var display = document.querySelector(".timer-Display");
-var laps = document.querySelector(".laps");
+let ms = 0, s = 0, m = 0, h = 0;
+let timer;
+let display = document.querySelector(".timer-Display");
+let lapsTable = document.querySelector(".laps");
+let totalSavedTimes = [];
+let mode = "timer"; 
 
-var totalSavedTimes = [];
-var lastResetTime = null;
-var clickSound = new Audio("click.mp3");
-var tickingSound = new Audio("stopwatch.mp3");
+let clickSound = new Audio("click.mp3");
+let tickingSound = new Audio("stopwatch.mp3");
 tickingSound.loop = true;
 
 function playClickSound() {
@@ -16,9 +16,10 @@ function playClickSound() {
 function start() {
     playClickSound();
     if (!timer) {
+        document.querySelector("#pauseTimer").innerHTML = "Pause ⏸️";
         tickingSound.play();
         timer = setInterval(run, 10);
-        saveTimerState(); 
+        saveState(); 
     }
 }
 
@@ -37,7 +38,7 @@ function run() {
         h++;
     }
     display.innerHTML = getTimer();
-    saveTimerState(); 
+    saveState();
 }
 
 function getTimer() {
@@ -55,17 +56,10 @@ function getTimer() {
 function pause() {
     playClickSound();
     if (timer) {
+        document.querySelector("#pauseTimer").innerHTML = "Pause ⏯️";
         stopTimer();
-        saveTime();
+        saveState();
     }
-}
-
-function stopTimer() {
-    clearInterval(timer);
-    timer = false;
-    tickingSound.pause();
-    tickingSound.currentTime = 0;
-    saveTimerState(); 
 }
 
 function restart() {
@@ -73,83 +67,74 @@ function restart() {
         reset();
         start();
     }
+    
+}
+
+function stopTimer() {
+    clearInterval(timer);
+    timer = null;
+    tickingSound.pause();
+    tickingSound.currentTime = 0;
+    saveState();
 }
 
 function lap() {
     let L = document.createElement("li");
     L.innerHTML = getTimer();
-    let lapsList = document.querySelector(".laps"); 
-    lapsList.appendChild(L);
+    
+    lapsTable.appendChild(L);
+    ms = s = m = h = 0;
+    display.innerHTML = getTimer();
+    saveState();
+
+}
+
+
+function reset() {
+    document.querySelector("#pauseTimer").innerHTML = "Pause";
+    playClickSound();
+    stopTimer();
+    ms = s = m = h = 0;
+    display.innerHTML = getTimer();
+    lapsTable.innerHTML = "";
+    totalSavedTimes = [];
+    saveState();
 }
 
 function resetLap() {
     playClickSound();
+    lapsTable.innerHTML = "";
     totalSavedTimes = [];
-    reset();
-    laps.innerHTML = "";
+    saveState();
 }
 
-function saveTime() {
-    let currentTime = getTimer();
-    totalSavedTimes.push(currentTime);
-    localStorage.setItem("savedTimes", JSON.stringify(totalSavedTimes));
-}
-
-function reset() {
+function switchMode(selectedMode) {
+    mode = selectedMode;
+    document.getElementById("timerButtons").style.display = mode === "timer" ? "grid" : "none";
+    document.getElementById("lapsButtons").style.display = mode === "laps" ? "grid" : "none";
     playClickSound();
-    stopTimer();
-    lastResetTime = getTimer();
-    ms = 0;
-    s = 0;
-    m = 0;
-    h = 0;
-    display.innerHTML = getTimer();
-    saveLastResetTime();
-    saveTimerState();
 }
 
-function saveLastResetTime() {
-    if (lastResetTime) {
-        localStorage.setItem("lastResetTime", lastResetTime);
-    }
-}
-
-function saveTimerState() {
-    const timerState = {
-        ms,
-        s,
-        m,
-        h,
-        running: !!timer 
+function saveState() {
+    let state = {
+        ms, s, m, h, mode, timerRunning: !!timer,
+        laps: lapsTable.innerHTML,
     };
-    localStorage.setItem("timerState", JSON.stringify(timerState));
+    localStorage.setItem("stopwatchState", JSON.stringify(state));
 }
 
-window.onload = function () {
-    let saved = localStorage.getItem("savedTimes");
-    if (saved) {
-        totalSavedTimes = JSON.parse(saved);
-    }
-
-    let resetSaved = localStorage.getItem("lastResetTime");
-    if (resetSaved) {
-        lastResetTime = resetSaved;
-    }
-
-    let savedTimerState = localStorage.getItem("timerState");
-    if (savedTimerState) {
-        let { ms: savedMs, s: savedS, m: savedM, h: savedH, running } = JSON.parse(savedTimerState);
-        ms = savedMs || 0;
-        s = savedS || 0;
-        m = savedM || 0;
-        h = savedH || 0;
-
-        display.innerHTML = getTimer();
-
-        if (running) {
+function loadState() {
+    let savedState = JSON.parse(localStorage.getItem("stopwatchState"));
+    if (savedState) {
+        ({ ms, s, m, h, mode } = savedState);
+        if (savedState.timerRunning) {
             start();
         }
-    } else {
         display.innerHTML = getTimer();
+        lapsTable.innerHTML = savedState.laps || "";
+        switchMode(mode);
     }
-};
+}
+
+window.onload = loadState;
+window.onbeforeunload = saveState;
