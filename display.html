@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="appear.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="heading">
+            <h1 style="color: rgb(0, 0, 0); text-align: center; font-size: 4rem;">STOPWATCH ⏱</h1>
+        </div>
+        <div class="outercircle">
+            <div class="innercircle">
+          
+        <div class="numbers">
+            <div class="number" style="transform: translate(32rem, 4rem);">5</div>
+            <div class="number" style="transform: translate(38rem, 8rem);">10</div>
+            <div class="number" style="transform: translate(40rem, 14rem);">15</div>
+            <div class="number" style="transform: translate(37rem, 21rem);">20</div>
+            <div class="number" style="transform: translate(30rem, 24.5rem);">25</div>
+            <div class="number" style="transform: translate(21rem, 24rem);">30</div>
+            <div class="number"style="transform: translate(10rem, 17rem);">35</div>
+            <div class="number" style="transform: translate(3.8rem, 5.8rem);">40</div>
+            <div class="number" style="transform: translate(1rem, -7rem);">45</div>
+            <div class="number" style="transform: translate(3.9rem, -20rem);">50</div>
+            <div class="number" style="transform: translate(11rem, -31rem);">55</div>
+            <div class="number" style="transform: translate(21rem, -37rem);">60</div>
+        </div>
+        
+        <div class="clockhand"></div>
+            </div> 
+            
+        </div>
+        <div class="timer-Display">
+            00 : 00 : 00 : 00
+        </div>
+        <ul class="laps"></ul>
+    <div style="text-align: center; margin-top: 10px;" class="pointers">
+        <input type="radio" id="timerMode" name="mode" value="timer" checked onclick="switchMode('timer')">
+        <label for="timerMode" style="color: white;">Timer Mode</label>
+       
+        <input type="radio" id="lapsMode" name="mode" value="laps" onclick="switchMode('laps')">
+        <label for="lapsMode" style="color: white;">Laps Mode</label>
+    </div>
+    <div class="buttons" id="timerButtons">
+        <button id="startTimer" onclick="start()">Start</button>
+        <button id="pauseTimer" onclick="pause()">Pause</button>
+        <button id="resetTime" onclick="reset()">Reset ⏹</button>
+    </div>
+    <div class="buttons" id="lapsButtons" style="display: none;">
+        <button id="startLapTimer" onclick="start()">Start</button>
+        <button id="resetLap" onclick="resetLap()">Reset Laps</button>
+        <button id="lap" onclick="lap()">Lap</button>
+   
+    </div>
+
+    </div>
+    <script src="/finalsc.js"></script>
+</body>
+
+</html>
