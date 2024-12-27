@@ -48,9 +48,7 @@ Contributions are welcome! If you have suggestions or improvements, please creat
 ## Live Demo 🔗
 
 You can see the project in action here:
-Live Demo Link: https://nidhiisinghh.github.io/GROUP-18/
-
-
+Live Demo Link: = https://mellow-kheer-dc414f.netlify.app/
 ## Acknowledgements 🙌 
 
 - Special thanks to all the contributors who have helped in developing this project.
