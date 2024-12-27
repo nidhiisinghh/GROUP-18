@@ -2,13 +2,12 @@ let ms = 0, s = 0, m = 0, h = 0;
 let timer;
 let display = document.querySelector(".timer-Display");
 let lapsTable = document.querySelector(".laps");
-let mode = "timer"; 
+let mode = "timer";
 
 let clickSound = new Audio("click.mp3");
 let tickingSound = new Audio("stopwatch.mp3");
 tickingSound.loop = true;
 
-// Arrays to track reset and paused times
 let resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
 let pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
 
@@ -60,8 +59,7 @@ function pause() {
     if (timer) {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏯️";
         stopTimer();
-        addLap("Paused at");
-        pausedTimes.push(getTimer());
+        pausedTimes.push(getTimer()); 
         saveState();
     }
 }
@@ -90,8 +88,7 @@ function lap() {
 
 function reset() {
     playClickSound();
-    addLap("Reset at");
-    resetTimes.push(getTimer());
+    resetTimes.push(getTimer()); 
     stopTimer();
     ms = s = m = h = 0;
     display.innerHTML = getTimer();
@@ -122,18 +119,16 @@ function saveState() {
     let state = {
         ms, s, m, h, mode, timerRunning: !!timer,
         laps: lapsTable.innerHTML,
-        resetTimes,
-        pausedTimes,
     };
     localStorage.setItem("stopwatchState", JSON.stringify(state));
-    localStorage.setItem("resetTimes", JSON.stringify(resetTimes));
-    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes));
+    localStorage.setItem("resetTimes", JSON.stringify(resetTimes)); 
+    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes)); 
 }
 
 function loadState() {
     let savedState = JSON.parse(localStorage.getItem("stopwatchState"));
     if (savedState) {
-        ({ ms, s, m, h, mode, resetTimes, pausedTimes } = savedState);
+        ({ ms, s, m, h, mode } = savedState);
         if (savedState.timerRunning) {
             start();
         }
@@ -141,14 +136,8 @@ function loadState() {
         lapsTable.innerHTML = savedState.laps || "";
         switchMode(mode);
     }
-
-    if (resetTimes) {
-        resetTimes.forEach(time => addLap(`Reset at: ${time}`));
-    }
-    if (pausedTimes) {
-        pausedTimes.forEach(time => addLap(`Paused at: ${time}`));
-    }
+    resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
+    pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
 }
 
 window.onload = loadState;
-
