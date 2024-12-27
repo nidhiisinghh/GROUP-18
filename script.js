@@ -2,12 +2,15 @@ let ms = 0, s = 0, m = 0, h = 0;
 let timer;
 let display = document.querySelector(".timer-Display");
 let lapsTable = document.querySelector(".laps");
-let totalSavedTimes = [];
 let mode = "timer"; 
 
 let clickSound = new Audio("click.mp3");
 let tickingSound = new Audio("stopwatch.mp3");
 tickingSound.loop = true;
+
+// Arrays to track reset and paused times
+let resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
+let pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
 
 function playClickSound() {
     clickSound.play();
@@ -38,7 +41,6 @@ function run() {
         h++;
     }
     display.innerHTML = getTimer();
-    saveState();
 }
 
 function getTimer() {
@@ -59,6 +61,8 @@ function pause() {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏯️";
         stopTimer();
         addLap("Paused at");
+        pausedTimes.push(getTimer());
+        saveState();
     }
 }
 
@@ -87,18 +91,17 @@ function lap() {
 function reset() {
     playClickSound();
     addLap("Reset at");
+    resetTimes.push(getTimer());
     stopTimer();
     ms = s = m = h = 0;
     display.innerHTML = getTimer();
     lapsTable.innerHTML = "";
-    totalSavedTimes = [];
     saveState();
 }
 
 function resetLap() {
     playClickSound();
     lapsTable.innerHTML = "";
-    totalSavedTimes = [];
     saveState();
 }
 
@@ -113,21 +116,24 @@ function addLap(label) {
     let L = document.createElement("li");
     L.innerHTML = `${label}: ${getTimer()}`;
     lapsTable.appendChild(L);
-    saveState();
 }
 
 function saveState() {
     let state = {
         ms, s, m, h, mode, timerRunning: !!timer,
         laps: lapsTable.innerHTML,
+        resetTimes,
+        pausedTimes,
     };
     localStorage.setItem("stopwatchState", JSON.stringify(state));
+    localStorage.setItem("resetTimes", JSON.stringify(resetTimes));
+    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes));
 }
 
 function loadState() {
     let savedState = JSON.parse(localStorage.getItem("stopwatchState"));
     if (savedState) {
-        ({ ms, s, m, h, mode } = savedState);
+        ({ ms, s, m, h, mode, resetTimes, pausedTimes } = savedState);
         if (savedState.timerRunning) {
             start();
         }
@@ -135,6 +141,14 @@ function loadState() {
         lapsTable.innerHTML = savedState.laps || "";
         switchMode(mode);
     }
+
+    if (resetTimes) {
+        resetTimes.forEach(time => addLap(`Reset at: ${time}`));
+    }
+    if (pausedTimes) {
+        pausedTimes.forEach(time => addLap(`Paused at: ${time}`));
+    }
 }
 
 window.onload = loadState;
+
