@@ -19,7 +19,7 @@ function start() {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏸️";
         tickingSound.play();
         timer = setInterval(run, 10);
-        saveState(); 
+        saveState();
     }
 }
 
@@ -58,7 +58,7 @@ function pause() {
     if (timer) {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏯️";
         stopTimer();
-        saveState();
+        addLap("Paused at");
     }
 }
 
@@ -67,7 +67,6 @@ function restart() {
         reset();
         start();
     }
-    
 }
 
 function stopTimer() {
@@ -79,20 +78,15 @@ function stopTimer() {
 }
 
 function lap() {
-    let L = document.createElement("li");
-    L.innerHTML = getTimer();
-    
-    lapsTable.appendChild(L);
+    addLap("Lap");
     ms = s = m = h = 0;
     display.innerHTML = getTimer();
     saveState();
-
 }
 
-
 function reset() {
-    document.querySelector("#pauseTimer").innerHTML = "Pause";
     playClickSound();
+    addLap("Reset at");
     stopTimer();
     ms = s = m = h = 0;
     display.innerHTML = getTimer();
@@ -113,6 +107,13 @@ function switchMode(selectedMode) {
     document.getElementById("timerButtons").style.display = mode === "timer" ? "grid" : "none";
     document.getElementById("lapsButtons").style.display = mode === "laps" ? "grid" : "none";
     playClickSound();
+}
+
+function addLap(label) {
+    let L = document.createElement("li");
+    L.innerHTML = `${label}: ${getTimer()}`;
+    lapsTable.appendChild(L);
+    saveState();
 }
 
 function saveState() {
@@ -137,4 +138,3 @@ function loadState() {
 }
 
 window.onload = loadState;
-window.onbeforeunload = saveState;
