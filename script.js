@@ -20,29 +20,26 @@ function start() {
     if (!timer) {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏸️";
         tickingSound.play();
-
-        // Save the start time
-        const startTime = Date.now() - getElapsedMilliseconds();
-        localStorage.setItem("startTime", startTime);
-
         timer = setInterval(run, 10);
         saveState();
     }
 }
 
 function run() {
-    const elapsedTime = getElapsedMilliseconds();
-    ms = Math.floor((elapsedTime % 1000) / 10);
-    s = Math.floor((elapsedTime / 1000) % 60);
-    m = Math.floor((elapsedTime / 60000) % 60);
-    h = Math.floor(elapsedTime / 3600000);
-
+    ms++;
+    if (ms == 100) {
+        ms = 0;
+        s++;
+    }
+    if (s == 60) {
+        s = 0;
+        m++;
+    }
+    if (m == 60) {
+        m = 0;
+        h++;
+    }
     display.innerHTML = getTimer();
-}
-
-function getElapsedMilliseconds() {
-    const startTime = parseInt(localStorage.getItem("startTime")) || 0;
-    return timer ? Date.now() - startTime : ms + s * 1000 + m * 60000 + h * 3600000;
 }
 
 function getTimer() {
@@ -62,9 +59,15 @@ function pause() {
     if (timer) {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏯️";
         stopTimer();
-
-        pausedTimes.push(getTimer());
+        pausedTimes.push(getTimer()); 
         saveState();
+    }
+}
+
+function restart() {
+    if (timer) {
+        reset();
+        start();
     }
 }
 
@@ -73,18 +76,37 @@ function stopTimer() {
     timer = null;
     tickingSound.pause();
     tickingSound.currentTime = 0;
-    localStorage.removeItem("startTime");
+    saveState();
+}
+
+function lap() {
+    addLap("Lap");
+    ms = s = m = h = 0;
+    display.innerHTML = getTimer();
     saveState();
 }
 
 function reset() {
     playClickSound();
-    resetTimes.push(getTimer());
+    resetTimes.push(getTimer()); 
     stopTimer();
     ms = s = m = h = 0;
     display.innerHTML = getTimer();
     lapsTable.innerHTML = "";
     saveState();
+}
+
+function resetLap() {
+    playClickSound();
+    lapsTable.innerHTML = "";
+    saveState();
+}
+
+function switchMode(selectedMode) {
+    mode = selectedMode;
+    document.getElementById("timerButtons").style.display = mode === "timer" ? "grid" : "none";
+    document.getElementById("lapsButtons").style.display = mode === "laps" ? "grid" : "none";
+    playClickSound();
 }
 
 function addLap(label) {
@@ -99,20 +121,17 @@ function saveState() {
         laps: lapsTable.innerHTML,
     };
     localStorage.setItem("stopwatchState", JSON.stringify(state));
-    localStorage.setItem("resetTimes", JSON.stringify(resetTimes));
-    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes));
+    localStorage.setItem("resetTimes", JSON.stringify(resetTimes)); 
+    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes)); 
 }
 
 function loadState() {
     let savedState = JSON.parse(localStorage.getItem("stopwatchState"));
     if (savedState) {
         ({ ms, s, m, h, mode } = savedState);
-
-        const startTime = localStorage.getItem("startTime");
-        if (startTime) {
+        if (savedState.timerRunning) {
             start();
         }
-
         display.innerHTML = getTimer();
         lapsTable.innerHTML = savedState.laps || "";
         switchMode(mode);
