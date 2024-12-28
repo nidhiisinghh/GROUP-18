@@ -21,6 +21,7 @@ function start() {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏸️";
         tickingSound.play();
 
+        // Save the start time
         const startTime = Date.now() - getElapsedMilliseconds();
         localStorage.setItem("startTime", startTime);
 
@@ -107,18 +108,13 @@ function loadState() {
     if (savedState) {
         ({ ms, s, m, h, mode } = savedState);
 
+        // If the timer was running, resume it
         const startTime = localStorage.getItem("startTime");
         if (startTime) {
-            const elapsedTime = getElapsedMilliseconds();
-            ms = Math.floor((elapsedTime % 1000) / 10);
-            s = Math.floor((elapsedTime / 1000) % 60);
-            m = Math.floor((elapsedTime / 60000) % 60);
-            h = Math.floor(elapsedTime / 3600000);
             start();
-        } else {
-            display.innerHTML = getTimer(); 
         }
 
+        display.innerHTML = getTimer();
         lapsTable.innerHTML = savedState.laps || "";
         switchMode(mode);
     }
@@ -126,11 +122,4 @@ function loadState() {
     pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
 }
 
-function switchMode(selectedMode) {
-    mode = selectedMode;
-    document.getElementById("timerButtons").style.display = mode === "timer" ? "grid" : "none";
-    document.getElementById("lapsButtons").style.display = mode === "laps" ? "grid" : "none";
-    playClickSound();
-}
-
-window.onload = loadState;
+window.onload = loadState; 
