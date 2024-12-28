@@ -109,16 +109,6 @@ body {
     border-radius: 3px;
     transition: transform 1s linear infinite;
 }
-
-.time {
-    font-size: 5rem;
-    position: absolute;
-    top: 25rem;
-    left: 13.8rem;
-    color: rgb(198, 18, 174);
-
-
-}
 .timer-Display{
     /* background-color: aqua; */
     position: absolute;
