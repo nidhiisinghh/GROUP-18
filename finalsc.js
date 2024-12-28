@@ -2,14 +2,16 @@ let ms = 0, s = 0, m = 0, h = 0;
 let timer;
 let display = document.querySelector(".timer-Display");
 let lapsTable = document.querySelector(".laps");
+let clockHand = document.querySelector(".clockhand");
+let totalSavedTimes = [];
 let mode = "timer";
+
+let pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
+let resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
 
 let clickSound = new Audio("click.mp3");
 let tickingSound = new Audio("stopwatch.mp3");
 tickingSound.loop = true;
-
-let resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
-let pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
 
 function playClickSound() {
     clickSound.play();
@@ -20,29 +22,34 @@ function start() {
     if (!timer) {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏸️";
         tickingSound.play();
-
-        // Save the start time
-        const startTime = Date.now() - getElapsedMilliseconds();
-        localStorage.setItem("startTime", startTime);
-
         timer = setInterval(run, 10);
         saveState();
     }
 }
 
 function run() {
-    const elapsedTime = getElapsedMilliseconds();
-    ms = Math.floor((elapsedTime % 1000) / 10);
-    s = Math.floor((elapsedTime / 1000) % 60);
-    m = Math.floor((elapsedTime / 60000) % 60);
-    h = Math.floor(elapsedTime / 3600000);
-
+    ms++;
+    if (ms == 100) {
+        ms = 0;
+        s++;
+    }
+    if (s == 60) {
+        s = 0;
+        m++;
+    }
+    if (m == 60) {
+        m = 0;
+        h++;
+    }
     display.innerHTML = getTimer();
+    updateClockHand(ms + s * 1000 + m * 60000); 
+    saveState();
 }
 
-function getElapsedMilliseconds() {
-    const startTime = parseInt(localStorage.getItem("startTime")) || 0;
-    return timer ? Date.now() - startTime : ms + s * 1000 + m * 60000 + h * 3600000;
+function updateClockHand(totalMilliseconds) {
+    const totalSeconds = totalMilliseconds / 1000;
+    const degrees = (totalSeconds % 60) * 6; 
+    clockHand.style.transform = `rotate(${degrees}deg)`;
 }
 
 function getTimer() {
@@ -62,9 +69,16 @@ function pause() {
     if (timer) {
         document.querySelector("#pauseTimer").innerHTML = "Pause ⏯️";
         stopTimer();
-
-        pausedTimes.push(getTimer());
+        pausedTimes.push(getTimer()); 
+        savePausedTimes(); 
         saveState();
+    }
+}
+
+function restart() {
+    if (timer) {
+        reset();
+        start();
     }
 }
 
@@ -73,24 +87,52 @@ function stopTimer() {
     timer = null;
     tickingSound.pause();
     tickingSound.currentTime = 0;
-    localStorage.removeItem("startTime");
+    saveState();
+}
+
+function lap() {
+    let L = document.createElement("li");
+    L.innerHTML = getTimer();
+    lapsTable.appendChild(L);
+    ms = s = m = h = 0;
+    display.innerHTML = getTimer();
     saveState();
 }
 
 function reset() {
+    document.querySelector("#pauseTimer").innerHTML = "Pause";
     playClickSound();
-    resetTimes.push(getTimer());
     stopTimer();
+    resetTimes.push(getTimer()); 
+    saveResetTimes(); 
     ms = s = m = h = 0;
     display.innerHTML = getTimer();
     lapsTable.innerHTML = "";
+    totalSavedTimes = [];
+    updateClockHand(0); 
     saveState();
 }
 
-function addLap(label) {
-    let L = document.createElement("li");
-    L.innerHTML = `${label}: ${getTimer()}`;
-    lapsTable.appendChild(L);
+function resetLap() {
+    playClickSound();
+    lapsTable.innerHTML = "";
+    totalSavedTimes = [];
+    saveState();
+}
+
+function switchMode(selectedMode) {
+    mode = selectedMode;
+    document.getElementById("timerButtons").style.display = mode === "timer" ? "grid" : "none";
+    document.getElementById("lapsButtons").style.display = mode === "laps" ? "grid" : "none";
+    playClickSound();
+}
+
+function savePausedTimes() {
+    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes));
+}
+
+function saveResetTimes() {
+    localStorage.setItem("resetTimes", JSON.stringify(resetTimes));
 }
 
 function saveState() {
@@ -99,27 +141,23 @@ function saveState() {
         laps: lapsTable.innerHTML,
     };
     localStorage.setItem("stopwatchState", JSON.stringify(state));
-    localStorage.setItem("resetTimes", JSON.stringify(resetTimes));
-    localStorage.setItem("pausedTimes", JSON.stringify(pausedTimes));
 }
 
 function loadState() {
     let savedState = JSON.parse(localStorage.getItem("stopwatchState"));
     if (savedState) {
         ({ ms, s, m, h, mode } = savedState);
-
-        // If the timer was running, resume it
-        const startTime = localStorage.getItem("startTime");
-        if (startTime) {
+        if (savedState.timerRunning) {
             start();
         }
-
         display.innerHTML = getTimer();
         lapsTable.innerHTML = savedState.laps || "";
         switchMode(mode);
     }
-    resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
+
     pausedTimes = JSON.parse(localStorage.getItem("pausedTimes")) || [];
+    resetTimes = JSON.parse(localStorage.getItem("resetTimes")) || [];
 }
 
-window.onload = loadState; 
+window.onload = loadState;
+window.onbeforeunload = saveState;
