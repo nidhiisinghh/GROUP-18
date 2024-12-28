@@ -141,3 +141,4 @@ function loadState() {
 }
 
 window.onload = loadState;
+window.onbeforeunload = saveState;
